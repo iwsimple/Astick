@@ -31,7 +31,7 @@ namespace Astick.DDD
         {
             get
             {
-                //系统运行时，_container只会存在一个
+                //系统运行时，_container只会存在一个（单例模式）
                 lock (_lock)
                 {
                     //调用构造函数注册
@@ -42,14 +42,26 @@ namespace Astick.DDD
             }
         }
 
+        public static IocContainer Instancee()
+        {
+            lock (_lock)
+            {
+                //调用构造函数注册
+                if (_container == null)
+                    _container = new IocContainer();
+                return _container;
+            }
+        }
+
         public static IWindsorContainer GetContainer()
         {
             //需实例化IocContainer类，调用成员变量_windsorContainer;
             //如果_windsor为静态变量，Instance返回的Ioc类型变量,是不可以通过实例访问类内的静态变量的，
-            //因此只能在ioc类内部直接调用_windsor变量。而这样就会调用方法就注册windsor，与设计违背。
+            //因此只能在ioc类内部直接调用_windsor变量而不需要引用Instance，也无法实例化Ioc，也就没法注册。
             //在应用程序执行期间，只注册一次_windsor,将配置加载。需要用静态属性Instance来控制Ioc类的初始化，赋值给静态对象_container
             //用IocContainer对象_contianer来调用IocContainer内部对象_windsor,来构造派生类。
-            return Instance._windsor;
+            //return Instance._windsor;
+            return Instancee()._windsor;
         }
 
         //静态方法，直接.加方法名调用
